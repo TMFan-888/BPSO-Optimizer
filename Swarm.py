@@ -2,17 +2,19 @@ import numpy as np
 from Particle import Particle
 
 class Swarm:
-    def __init__(self, popsize_or_particles, T, initial_position=None):
+    def __init__(self, popsize_or_particles, T, initial_position=None, region=None):
         """
         初始化粒子群
         Args:
             popsize_or_particles: 整数(粒子数量)或粒子列表
             T: 迭代次数
-            initial_position: 初始位置，用于重构粒子群时使用
+            initial_position: 初始位置
+            region: 粒子群所属的区域
         """
         self.T = T
         self.global_best_cost = float('inf')
         self.global_best_position = None
+        self.region = region  # 添加区域属性
         
         # 用于记录优化过程中的所有数据
         self.history = {
@@ -39,10 +41,9 @@ class Swarm:
             self.global_best_position = np.array(initial_position)
             self.particles = []
             for _ in range(self.popsize):
-                # 在最优解附近随机生成新粒子
                 perturbed_position = initial_position + np.random.uniform(-0.2, 0.2, len(initial_position)) * 0.1 * (
                             Particle.position_max - Particle.position_min)
-                particle = Particle(perturbed_position)
+                particle = Particle(perturbed_position, region=self.region)  # 传入区域信息
                 particle.set_params()
                 self.particles.append(particle)
 

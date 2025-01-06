@@ -57,3 +57,26 @@ def initialize_velocity(config):
     velocity[1] = np.random.uniform(-0.1 * (ybounds[1] - ybounds[0]), 
                                    0.1 * (ybounds[1] - ybounds[0]))
     return velocity
+
+def get_region_bounds(region_size, bounds):
+    """
+    计算区域的边界
+    Args:
+        region_size: 区域大小 [(dx1, dy1), (dx2, dy2)]
+        bounds: 搜索空间边界 [[x_min, x_max], [y_min, y_max]]
+    Returns:
+        list: 区域边界列表
+    """
+    x_divisions = int((bounds[0][1] - bounds[0][0]) / region_size[0][0])
+    y_divisions = int((bounds[1][1] - bounds[1][0]) / region_size[1][0])
+    
+    region_bounds = []
+    for i in range(x_divisions):
+        for j in range(y_divisions):
+            x_min = bounds[0][0] + i * region_size[0][0]
+            x_max = x_min + region_size[0][0]
+            y_min = bounds[1][0] + j * region_size[1][0]
+            y_max = y_min + region_size[1][0]
+            region_bounds.append([[x_min, x_max], [y_min, y_max]])
+    
+    return region_bounds

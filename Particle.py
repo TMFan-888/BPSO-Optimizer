@@ -36,11 +36,12 @@ class Particle:
             samples[i] = sample
         return samples
 
-    def __init__(self, initial_position=None):
+    def __init__(self, initial_position=None, region=None):
         """
         初始化粒子
         Args:
             initial_position: 初始化粒子位置
+            region: 粒子所属的区域
         """
         if initial_position is None:
             self.position = np.zeros(Particle.position_min.size)
@@ -50,6 +51,7 @@ class Particle:
         self.velocity = np.zeros_like(self.position)
         self.best_position = self.position.copy()
         self.best_cost = float('inf')
+        self.region = region  # 添加区域属性
 
     def evaluate(self):
         """评估粒子的适应度值"""
@@ -87,8 +89,10 @@ class Particle:
             # 限制位置在搜索空间内
             self.position = np.clip(self.position, Particle.position_min, Particle.position_max)
 
-        # 评估新位置
+        # 评估新位置并更新区域信息
         self.evaluate()
+        if self.region:
+            self.region.update(self.position, self.cost)
 
     def set_params(self):
         """设置粒子的参数"""
