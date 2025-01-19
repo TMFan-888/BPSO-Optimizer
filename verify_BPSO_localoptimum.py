@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from BPSO_optimizer import BPSOOptimizer
 from utils import evaluate_position, test_function
+import imageio
+import cv2
 
 def plot_optimization_process(optimizer, iteration, candidates=None, swarms=None):
     """
@@ -195,17 +197,17 @@ if __name__ == "__main__":
         "n_dimensions": 2,          # 优化问题的维度
         "xbounds": [-5.12, 5.12],    # x1范围
         "ybounds": [-5.12, 5.12],    # x2范围
-        "region_size": [(1.0, 1.0), (1.0, 1.0)],  # 增大区域大小
+        "region_size": [(1.0, 1.0), (1.0, 1.0)],  # 区域大小
 
-        "pso_particles": 20,    # 增加粒子数量
-        "pso_iterations": 20,   # 增加迭代次数
+        "pso_particles": 20,    # 粒子数量
+        "pso_iterations": 25,   # 迭代次数
 
-        "bayesian_iterations": 10,  # 贝叶斯优化迭代次数
-        "initial_samples": 10,  # 增加初始采样点
-        "ei_samples": 100,      # 增加EI采样点
-        "ei_select_num": 10,    # 增加选择的候选点数量
+        "bayesian_iterations": 6,  # 贝叶斯优化迭代次数
+        "initial_samples": 20,  # 初始采样点
+        "ei_samples": 100,      # EI采样点
+        "ei_select_num": 20,    # 选择的候选点数量
 
-        "region_visit_threshold": 2,  # 区域访问阈值
+        "region_visit_threshold": 5,  # 区域访问阈值
         "max_inactive_iterations": 5,  # 最大非活跃迭代次数
     }
 
@@ -217,12 +219,41 @@ if __name__ == "__main__":
     manager = plt.get_current_fig_manager()
     manager.window.geometry("1000x1000+50+50")  # 宽度x高度+左边距+上边距
     
-    # 创建优化器
+    # 创建存储帧的列表
+    frames = []
+    # 定义包装回调函数来捕获帧
+    def callback_wrapper(optimizer, iteration, candidates=None, swarms=None):
+        # 调用原有的绘图函数
+        plot_optimization_process(optimizer, iteration, candidates, swarms)
+        
+        # 捕获当前帧
+        fig.canvas.draw()
+        # 将画布转换为numpy数组
+        frame = np.array(fig.canvas.renderer.buffer_rgba())
+        # 转换为RGB格式
+        frame = frame[:, :, :3]
+        frames.append(frame)
+    
+    # 创建优化器并运行
     optimizer = BPSOOptimizer(config)
     
     best_position, best_cost, local_records = optimizer.optimize(
-        callback=plot_optimization_process
+        callback=callback_wrapper
     )
+    
+    # 保存为视频
+    height, width, _ = frames[0].shape
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter('optimization_process.mp4', fourcc, 1, (width, height))
+    
+    for frame in frames:
+        frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        out.write(frame_bgr)
+    out.release()
+    
+    # 保存为GIF
+
+    imageio.mimsave('optimization_process.gif', frames, fps=1)
     
     plt.ioff()
     plt.show()  # 显示最终结果

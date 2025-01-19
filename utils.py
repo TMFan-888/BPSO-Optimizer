@@ -4,7 +4,6 @@ import numpy as np
 def test_function(x):
     """
     测试函数 - Rastrigin函数
-    这是一个经典的优化测试函数，具有多个局部最小值
     f(x) = 10n + Σ(x[i]^2 - 10cos(2πx[i]))
     全局最小值：f(0,0,...,0) = 0
     """

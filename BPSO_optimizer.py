@@ -392,10 +392,9 @@ class BPSOOptimizer:
         # 多准则判断
         criteria = [
             candidate_cost < self.global_best_cost * 1.1,  # 接近全局最优
-            not region['pso_applied'] and region['visit_count'] <= self.region_visit_threshold,  # 区域未充分探索
+            not region['pso_applied'] and region['visit_count'] <= self.region_visit_threshold,  # 区域未充分探索且未应用PSO
             candidate_cost < region['best_cost'] * 1.05,  # 接近区域最优
             len(region['history']) < 3,  # 区域样本数较少
-            region['visit_count'] < self.region_visit_threshold  # 访问次数未达到阈值
         ]
         
         # 如果没有满足任何准则，将候选点设置为非活跃
